@@ -1,58 +1,76 @@
 {% extends "base.html" %}
 
 {% block content %}
-  {% if current_user.is_authenticated %}
-    <h1 class="title has-text-centered">Willkommen, {{ current_user.name }}!</h1>
-  {% endif %}
-  <h2 class="subtitle has-text-centered">Alle Beiträge</h2>
+<!-- Hier kannst du deine eigenen Styles einfügen oder sie in base.html / einer externen CSS-Datei definieren -->
+<style>
+  .comment-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem; /* Abstand zwischen Kommentaren */
+  }
+  .comment-text {
+    margin: 0; /* Verhindert zusätzlichen Außenabstand */
+  }
+</style>
 
-  <div class="columns is-centered">
-    <div class="column is-half">
-      {% for post in posts %}
-        <div class="box mb-4">
-          <!-- Beitragstitel -->
-          <p class="has-text-weight-bold">{{ post.title }}</p>
-          <!-- Datum und Uhrzeit der Veröffentlichung -->
-          <p class="is-size-7 has-text-grey">
-            Veröffentlicht am: {{ post.date_created.strftime('%d.%m.%Y %H:%M') }}
-          </p>
-          <!-- Inhalt des Beitrags -->
-          <p>{{ post.meinung }}</p>
-          
-          <!-- Kommentare anzeigen -->
-          {% if post.comments %}
-            <hr>
-            <strong>Kommentare:</strong>
-            {% for c in post.comments %}
-              <p>
+{% if current_user.is_authenticated %}
+  <h1 class="title has-text-centered">Willkommen, {{ current_user.name }}!</h1>
+{% endif %}
+<h2 class="subtitle has-text-centered">Alle Beiträge</h2>
+
+<div class="columns is-centered">
+  <div class="column is-half">
+    {% for post in posts %}
+      <div class="box mb-4">
+        <!-- Beitragstitel -->
+        <p class="has-text-weight-bold">{{ post.title }}</p>
+        <p class="is-size-7 has-text-grey">
+          Veröffentlicht am: {{ post.date_created.strftime('%d.%m.%Y %H:%M') }}
+        </p>
+        <p>{{ post.meinung }}</p>
+        
+        <!-- Kommentare anzeigen -->
+        {% if post.comments and post.comments|length > 0 %}
+          <hr>
+          <strong>Kommentare:</strong>
+          {% for c in post.comments %}
+            <div class="comment-item">
+              <p class="comment-text">
                 {{ c.text }} 
-                <small>
-                  - {{ c.comment_author.name }} 
-                  ({{ c.date_created.strftime('%d.%m.%Y %H:%M') }})
+                <small class="is-size-7 has-text-grey">
+                  - {{ c.comment_author.name }}
+                  {% if c.date_created %}
+                    ({{ c.date_created.strftime('%d.%m.%Y %H:%M') }})
+                  {% endif %}
                 </small>
               </p>
-            {% endfor %}
-          {% endif %}
-          
-          <!-- Kommentarformular (nur wenn eingeloggt) -->
-          {% if current_user.is_authenticated %}
-            <hr>
-            <form method="POST" action="{{ url_for('main.index') }}">
-              <input type="hidden" name="post_id" value="{{ post.id }}">
-              <div class="field">
-                <label class="label">Neuen Kommentar hinzufügen</label>
-                <div class="control">
-                  <textarea class="textarea" name="comment_text" placeholder="Dein Kommentar" required></textarea>
-                </div>
-              </div>
-              <button class="button is-link" type="submit">Kommentieren</button>
-            </form>
-          {% else %}
-            <hr>
-            <p class="is-size-7">Bitte <a href="{{ url_for('auth.login') }}">anmelden</a>, um zu kommentieren.</p>
-          {% endif %}
-        </div>
-      {% endfor %}
-    </div>
+              {% if c.user_id == current_user.id %}
+                <form method="POST" action="{{ url_for('main.delete_comment', comment_id=c.id) }}">
+                  <button class="button is-danger is-small" type="submit" onclick="return confirm('Kommentar wirklich löschen?');">Löschen</button>
+                </form>
+              {% endif %}
+            </div>
+          {% endfor %}
+        {% else %}
+          <hr>
+          <p class="is-size-7">Keine Kommentare vorhanden.</p>
+        {% endif %}
+        
+        <!-- Formular für neuen Kommentar -->
+        <hr>
+        <form method="POST" action="{{ url_for('main.index') }}">
+          <input type="hidden" name="post_id" value="{{ post.id }}">
+          <div class="field">
+            <label class="label">Neuen Kommentar hinzufügen</label>
+            <div class="control">
+              <textarea class="textarea" name="comment_text" placeholder="Dein Kommentar" required></textarea>
+            </div>
+          </div>
+          <button class="button is-link" type="submit">Kommentieren</button>
+        </form>
+      </div>
+    {% endfor %}
   </div>
+</div>
 {% endblock %}

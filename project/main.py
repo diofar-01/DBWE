@@ -59,8 +59,21 @@ def add_post():
 def delete_post(post_id):
     post = Post.query.get_or_404(post_id)
     if post.user_id != current_user.id:
-        abort(403)  # Zugriff verweigern, wenn der Nutzer nicht der Besitzer ist
+        abort(403)
     db.session.delete(post)
     db.session.commit()
     flash("Beitrag wurde erfolgreich gelöscht.", "success")
     return redirect(url_for('main.profile'))
+
+# Neue Route zum Löschen eines Kommentars – nur der Kommentar-Ersteller darf löschen
+@main.route('/delete_comment/<int:comment_id>', methods=['POST'])
+@login_required
+def delete_comment(comment_id):
+    comment = Comment.query.get_or_404(comment_id)
+    if comment.user_id != current_user.id:
+        abort(403)
+    db.session.delete(comment)
+    db.session.commit()
+    flash("Kommentar wurde erfolgreich gelöscht.", "success")
+    # Redirect zurück zur vorherigen Seite, wenn möglich
+    return redirect(request.referrer or url_for('main.index'))
