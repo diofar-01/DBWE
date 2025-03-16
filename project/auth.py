@@ -1,8 +1,7 @@
 # auth.py
-
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import login_user, logout_user, login_required
+from flask_login import login_user, logout_user, login_required, current_user
 from .models import User
 from . import db
 
@@ -27,8 +26,8 @@ def login_post():
         return redirect(url_for('auth.login')) # if user doesn't exist or password is wrong, reload the page
 
     # if the above check passes, then we know the user has the right credentials
-    login_user(user, remember=remember)
-    return redirect(url_for('main.profile'))
+    login_user(user, remember=False)
+    return redirect(url_for('main.index'))
 
 @auth.route('/signup')
 def signup():
@@ -63,4 +62,30 @@ def signup_post():
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('main.index'))
+    return redirect(url_for('auth.login'))
+
+@auth.route('/change_password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    if request.method == 'POST':
+        old_password = request.form.get('old_password')
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
+
+        # Prüfen, ob die neuen Passwörter übereinstimmen
+        if new_password != confirm_password:
+            flash("Die neuen Passwörter stimmen nicht überein.")
+            return redirect(url_for('auth.change_password'))
+        
+        # Überprüfen, ob das alte Passwort korrekt ist
+        if not check_password_hash(current_user.password, old_password):
+            flash("Das aktuelle Passwort stimmt nicht überein.")
+            return redirect(url_for('auth.change_password'))
+        
+        # Neues Passwort hashen und in der Datenbank speichern
+        current_user.password = generate_password_hash(new_password, method='pbkdf2:sha256')
+        db.session.commit()
+        flash("Passwort erfolgreich geändert!")
+        return redirect(url_for('main.profile'))
+    
+    return render_template('change_password.html')

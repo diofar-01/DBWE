@@ -1,5 +1,4 @@
 <!-- templates/login.html -->
-
 {% extends "base.html" %}
 
 {% block content %}
@@ -16,21 +15,25 @@
         <form method="POST" action="/login">
             <div class="field">
                 <div class="control">
-                    <input class="input is-large" type="email" name="email" placeholder="Your Email" autofocus="">
+                    <input class="input is-large" type="email" name="email" placeholder="Your Email" autofocus="" required>
                 </div>
             </div>
 
             <div class="field">
                 <div class="control">
-                    <input class="input is-large" type="password" name="password" placeholder="Your Password">
+                    <input class="input is-large" type="password" name="password" placeholder="Your Password" required>
                 </div>
             </div>
+
+            <!-- Entferne diesen Abschnitt, um "Remember me" zu entfernen:
             <div class="field">
                 <label class="checkbox">
-                    <input type="checkbox">
+                    <input type="checkbox" name="remember">
                     Remember me
                 </label>
             </div>
+            -->
+
             <button class="button is-block is-info is-large is-fullwidth">Login</button>
         </form>
     </div>

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="title">Dashboard</h1>
+
+<!-- Formular zum Erstellen eines Beitrags -->
+<form method="POST" action="">
+    <div class="field">
+        <label class="label">Titel</label>
+        <div class="control">
+            <input class="input" type="text" name="title" placeholder="Beitragstitel" required>
+        </div>
+    </div>
+
+    <div class="field">
+        <label class="label">Deine Meinung</label>
+        <div class="control">
+            <textarea class="textarea" name="meinung" placeholder="Teile deine Meinung" required></textarea>
+        </div>
+    </div>
+
+    <div class="field">
+        <label class="label">Kommentar</label>
+        <div class="control">
+            <textarea class="textarea" name="comments" placeholder="Kommentar zum Beitrag"></textarea>
+        </div>
+    </div>
+
+    <button class="button is-primary" type="submit">Beitrag erstellen</button>
+</form>
+
+<hr>
+
+<!-- Beispiel: Liste der eigenen Beiträge anzeigen -->
+<h2 class="subtitle">Deine Beiträge</h2>
+{% for post in posts %}
+<div class="box" style="text-align: left;">
+    <h3><strong>{{ post.title }}</strong></h3>
+    <p><em>Meinung:</em> {{ post.meinung }}</p>
+    <p><em>Kommentar:</em> {{ post.comments }}</p>
+</div>
+{% endfor %}
+
+{% endblock %}

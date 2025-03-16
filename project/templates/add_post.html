@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="title has-text-centered">Neuen Beitrag erstellen</h1>
+<div class="columns is-centered">
+  <div class="column is-half">
+    <div class="box">
+      <form method="POST" action="">
+        <!-- Titel -->
+        <div class="field">
+          <label class="label">Titel</label>
+          <div class="control">
+            <input class="input" type="text" name="title" placeholder="Beitragstitel" required>
+          </div>
+        </div>
+        
+        <!-- Meinung -->
+        <div class="field">
+          <label class="label">Deine Meinung</label>
+          <div class="control">
+            <textarea class="textarea" name="meinung" placeholder="Deine Meinung" required></textarea>
+          </div>
+        </div>
+        
+        <!-- Kein Kommentar-Feld hier -->
+        
+        <div class="field">
+          <div class="control">
+            <button class="button is-primary" type="submit">Beitrag erstellen</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
