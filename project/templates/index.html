@@ -1,19 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-<!-- Hier kannst du deine eigenen Styles einfügen oder sie in base.html / einer externen CSS-Datei definieren -->
-<style>
-  .comment-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1rem; /* Abstand zwischen Kommentaren */
-  }
-  .comment-text {
-    margin: 0; /* Verhindert zusätzlichen Außenabstand */
-  }
-</style>
-
 {% if current_user.is_authenticated %}
   <h1 class="title has-text-centered">Willkommen, {{ current_user.name }}!</h1>
 {% endif %}
@@ -23,42 +10,63 @@
   <div class="column is-half">
     {% for post in posts %}
       <div class="box mb-4">
-        <!-- Beitragstitel -->
-        <p class="has-text-weight-bold">{{ post.title }}</p>
-        <p class="is-size-7 has-text-grey">
-          Veröffentlicht am: {{ post.date_created.strftime('%d.%m.%Y %H:%M') }}
-        </p>
-        <p>{{ post.meinung }}</p>
-        
-        <!-- Kommentare anzeigen -->
+        <!-- Media-Object: Bild links, Text rechts -->
+        <article class="media">
+          <!-- Linke Seite: Buchcover -->
+          <figure class="media-left">
+            {% if post.image %}
+              <p class="image is-128x128">
+                <img src="{{ post.image }}" alt="Buchcover von {{ post.title }}">
+              </p>
+            {% else %}
+              <p class="is-italic is-size-7">Kein Bild verfügbar</p>
+            {% endif %}
+          </figure>
+          
+          <!-- Rechte Seite: Buchinfos, Meinung -->
+          <div class="media-content">
+            <div class="content">
+              <p class="title is-5" style="margin-bottom: 0;">{{ post.title }}</p>
+              <p class="subtitle is-6" style="margin-top: 0;">
+                Autor: {{ post.book_author or "unbekannt" }}
+              </p>
+              <p class="is-size-7 has-text-grey">
+                Erstveröffentlicht: {{ post.published_date or "unbekannt" }}
+              </p>
+              <p>{{ post.meinung }}</p>
+            </div>
+          </div>
+        </article>
+
+        <!-- Kommentare -->
         {% if post.comments and post.comments|length > 0 %}
           <hr>
-          <strong>Kommentare:</strong>
           {% for c in post.comments %}
-            <div class="comment-item">
-              <p class="comment-text">
-                {{ c.text }} 
+            <div class="comment is-flex is-justify-content-space-between is-align-items-center mb-2">
+              <p style="margin: 0;">
+                {{ c.text }}
                 <small class="is-size-7 has-text-grey">
                   - {{ c.comment_author.name }}
                   {% if c.date_created %}
-                    ({{ c.date_created.strftime('%d.%m.%Y %H:%M') }})
+                    ({{ c.date_created.strftime('%d.%m.%Y') }})
                   {% endif %}
                 </small>
               </p>
-              {% if c.user_id == current_user.id %}
+              {% if c.comment_author.id == current_user.id %}
                 <form method="POST" action="{{ url_for('main.delete_comment', comment_id=c.id) }}">
-                  <button class="button is-danger is-small" type="submit" onclick="return confirm('Kommentar wirklich löschen?');">Löschen</button>
+                  <button class="button is-danger is-small" type="submit" onclick="return confirm('Kommentar wirklich löschen?');">
+                    Löschen
+                  </button>
                 </form>
               {% endif %}
             </div>
           {% endfor %}
         {% else %}
           <hr>
-          <p class="is-size-7">Keine Kommentare vorhanden.</p>
+          <p class="is-size-7 has-text-grey">Keine Kommentare vorhanden.</p>
         {% endif %}
-        
-        <!-- Formular für neuen Kommentar -->
-        <hr>
+
+        <!-- Kommentar hinzufügen -->
         <form method="POST" action="{{ url_for('main.index') }}">
           <input type="hidden" name="post_id" value="{{ post.id }}">
           <div class="field">
@@ -67,7 +75,7 @@
               <textarea class="textarea" name="comment_text" placeholder="Dein Kommentar" required></textarea>
             </div>
           </div>
-          <button class="button is-link" type="submit">Kommentieren</button>
+          <button class="button is-primary" type="submit">Absenden</button>
         </form>
       </div>
     {% endfor %}

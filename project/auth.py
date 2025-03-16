@@ -72,20 +72,18 @@ def change_password():
         new_password = request.form.get('new_password')
         confirm_password = request.form.get('confirm_password')
 
-        # Prüfen, ob die neuen Passwörter übereinstimmen
         if new_password != confirm_password:
             flash("Die neuen Passwörter stimmen nicht überein.")
             return redirect(url_for('auth.change_password'))
         
-        # Überprüfen, ob das alte Passwort korrekt ist
         if not check_password_hash(current_user.password, old_password):
             flash("Das aktuelle Passwort stimmt nicht überein.")
             return redirect(url_for('auth.change_password'))
         
-        # Neues Passwort hashen und in der Datenbank speichern
         current_user.password = generate_password_hash(new_password, method='pbkdf2:sha256')
         db.session.commit()
         flash("Passwort erfolgreich geändert!")
-        return redirect(url_for('main.profile'))
+        # Statt Redirect: Seite erneut rendern, sodass Flash-Meldung hier sichtbar bleibt.
+        return render_template('change_password.html')
     
     return render_template('change_password.html')

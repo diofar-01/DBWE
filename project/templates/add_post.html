@@ -1,36 +1,118 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1 class="title has-text-centered">Neuen Beitrag erstellen</h1>
 <div class="columns is-centered">
   <div class="column is-half">
     <div class="box">
-      <form method="POST" action="">
-        <!-- Titel -->
+      <h1 class="title has-text-centered">Neuen Beitrag erstellen</h1>
+      <form id="bookForm" method="POST" action="{{ url_for('main.add_post') }}">
         <div class="field">
-          <label class="label">Titel</label>
+          <label class="label">Buchtitel</label>
           <div class="control">
-            <input class="input" type="text" name="title" placeholder="Beitragstitel" required>
+            <input class="input" type="text" name="title" id="bookTitle" placeholder="Buchtitel eingeben" required>
           </div>
         </div>
-        
-        <!-- Meinung -->
+        <!-- Suchbutton -->
+        <div class="field">
+          <div class="control">
+            <button type="button" id="searchButton" class="button is-info">Suche Buch</button>
+          </div>
+        </div>
+        <!-- Dropdown für Suchergebnisse -->
+        <div class="field" id="resultsField" style="display: none;">
+          <label class="label">Ergebnisse</label>
+          <div class="control">
+            <div class="select is-fullwidth">
+              <select id="resultsDropdown">
+                <option value="">Wähle ein Buch</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <!-- Manuell editierbare Felder -->
+        <div class="field">
+          <label class="label">Autor</label>
+          <div class="control">
+            <input class="input" type="text" name="author" id="bookAuthor" placeholder="Autor eingeben">
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">ISBN</label>
+          <div class="control">
+            <input class="input" type="text" name="isbn" id="bookISBN" placeholder="ISBN eingeben">
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Erstveröffentlichungsdatum</label>
+          <div class="control">
+            <input class="input" type="text" name="publishedDate" id="bookPublishedDate" placeholder="Erstveröffentlichungsdatum">
+          </div>
+        </div>
+        <!-- Feld zur Anzeige des Buchcovers -->
+        <div class="field">
+            <label class="label">Bild</label>
+            <div class="control">
+            <img id="bookImage" src="" alt="Buchcover" style="max-width: 100px;">
+            <!-- Verstecktes Feld, um den Bild-URL zu speichern -->
+            <input type="hidden" name="image" id="bookImageHidden">
+            </div>
+        </div>
         <div class="field">
           <label class="label">Deine Meinung</label>
           <div class="control">
-            <textarea class="textarea" name="meinung" placeholder="Deine Meinung" required></textarea>
+            <textarea class="textarea" name="meinung" placeholder="Deine Meinung"></textarea>
           </div>
         </div>
-        
-        <!-- Kein Kommentar-Feld hier -->
-        
-        <div class="field">
-          <div class="control">
-            <button class="button is-primary" type="submit">Beitrag erstellen</button>
-          </div>
-        </div>
+        <button class="button is-primary" type="submit">Beitrag erstellen</button>
       </form>
     </div>
   </div>
 </div>
+
+<script>
+  // Beim Klick auf den Suchbutton:
+  document.getElementById('searchButton').addEventListener('click', function(){
+    var title = document.getElementById('bookTitle').value;
+    if(title){
+      fetch('{{ url_for("main.search_book") }}?q=' + encodeURIComponent(title))
+        .then(response => response.json())
+        .then(data => {
+           if(!data.error){
+              var dropdown = document.getElementById('resultsDropdown');
+              dropdown.innerHTML = '<option value="">Wähle ein Buch</option>';
+              data.forEach(function(book) {
+                 var option = document.createElement('option');
+                 option.value = JSON.stringify(book);
+                 option.text = book.title + " - " + (book.authors.length ? book.authors.join(', ') : "unbekannter Autor");
+                 dropdown.appendChild(option);
+              });
+              document.getElementById('resultsField').style.display = 'block';
+           } else {
+              alert(data.error);
+           }
+        })
+        .catch(err => {
+           console.error('Fehler bei der Buchsuche:', err);
+        });
+    } else {
+      alert("Bitte gib einen Buchtitel ein.");
+    }
+  });
+
+    // Beim Ändern der Auswahl im Dropdown:
+    document.getElementById('resultsDropdown').addEventListener('change', function(){
+    var selected = this.value;
+    if(selected){
+        var book = JSON.parse(selected);
+        document.getElementById('bookTitle').value = book.title;
+        document.getElementById('bookAuthor').value = book.authors.join(', ');
+        document.getElementById('bookISBN').value = book.isbn;
+        document.getElementById('bookPublishedDate').value = book.publishedDate;
+        document.getElementById('bookImage').src = book.image;
+        // Setze den versteckten Input für das Bild
+        document.getElementById('bookImageHidden').value = book.image;
+    }
+    });
+
+</script>
 {% endblock %}

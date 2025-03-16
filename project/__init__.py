@@ -1,4 +1,13 @@
 # init.py
+from flask_migrate import Migrate
+migrate = Migrate()
+
+def create_app():
+    app = Flask(__name__)
+    # ... deine Konfiguration und db.init_app(app)
+    migrate.init_app(app, db)
+    # ... Registrierung deiner Blueprints etc.
+    return app
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
