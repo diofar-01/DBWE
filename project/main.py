@@ -6,7 +6,12 @@ from .models import User, Post, Comment
 
 main = Blueprint('main', __name__)
 
-# Endpunkt zum Suchen von Büchern mit Google Books API (alternative Methode)
+# --------------------------------------------------
+# Endpunkt: Buchsuche mit Google Books API
+# Diese Route wird per GET aufgerufen und liefert
+# bis zu 5 Buchergebnisse als JSON zurück.
+# Nur eingeloggte Nutzer können diese Funktion nutzen.
+# --------------------------------------------------
 @main.route('/search_book', methods=['GET'])
 @login_required
 def search_book():
@@ -44,7 +49,12 @@ def search_book():
         results.append(result)
     return jsonify(results)
 
-# Startseite: Kommentare verarbeiten und Beiträge anzeigen (nur für eingeloggte Nutzer)
+# --------------------------------------------------
+# Endpunkt: Startseite
+# Zeigt alle Beiträge an und verarbeitet POST-Anfragen,
+# um Kommentare zu einem Beitrag zu speichern.
+# Nur eingeloggte Nutzer haben Zugriff.
+# --------------------------------------------------
 @main.route('/', methods=['GET', 'POST'])
 @login_required
 def index():
@@ -62,31 +72,39 @@ def index():
             db.session.commit()
         return redirect(url_for('main.index'))
     
-    posts = Post.query.all()
+    posts = Post.query.all()  # Alle Beiträge laden
     return render_template('index.html', posts=posts)
 
-# Profilseite: Eigene Beiträge anzeigen
+# --------------------------------------------------
+# Endpunkt: Profilseite
+# Zeigt nur die Beiträge des aktuell eingeloggten Nutzers an.
+# --------------------------------------------------
 @main.route('/profile')
 @login_required
 def profile():
     posts = Post.query.filter_by(user_id=current_user.id).all()
     return render_template('profile.html', name=current_user.name, posts=posts)
 
-# Route zum Hinzufügen eines neuen Beitrags (mit manueller Eingabe für Autor, ISBN, Veröffentlichungsdatum)
+# --------------------------------------------------
+# Endpunkt: Beitrag hinzufügen
+# Ermöglicht es, einen neuen Beitrag mit manueller Eingabe
+# (Buchtitel, Autor, ISBN, Veröffentlichungsdatum, Bild URL und Meinung)
+# zu erstellen. Es wird auch eine Debug-Ausgabe des Titels gemacht.
+# --------------------------------------------------
 @main.route('/add_post', methods=['GET', 'POST'])
 @login_required
 def add_post():
     if request.method == 'POST':
-        # Hier wird der Buchtitel ausgelesen.
+        # Lese den Buchtitel aus dem Formular
         title = request.form.get('title')
-        # Debug-Ausgabe: Überprüfe, ob der Titel korrekt übergeben wird.
+        # Debug-Ausgabe in der Konsole
         print("Gespeicherter Titel:", title)
         
         meinung = request.form.get('meinung')
         book_author = request.form.get('author')
         isbn = request.form.get('isbn')
         published_date = request.form.get('publishedDate')
-        image = request.form.get('image')  # Den Wert aus dem versteckten Feld
+        image = request.form.get('image')  # Bild-URL (manuell oder automatisch gefüllt)
         
         new_post = Post(
             title=title,
@@ -104,7 +122,11 @@ def add_post():
         return redirect(url_for('main.index'))
     return render_template('add_post.html')
 
-# Endpunkt zum Löschen eines eigenen Beitrags
+# --------------------------------------------------
+# Endpunkt: Beitrag löschen
+# Löscht einen Beitrag, wenn der aktuell eingeloggte Nutzer
+# der Ersteller (Besitzer) des Beitrags ist.
+# --------------------------------------------------
 @main.route('/delete_post/<int:post_id>', methods=['POST'])
 @login_required
 def delete_post(post_id):
@@ -116,7 +138,11 @@ def delete_post(post_id):
     flash("Beitrag wurde erfolgreich gelöscht.", "success")
     return redirect(url_for('main.profile'))
 
-# Endpunkt zum Löschen eines eigenen Kommentars
+# --------------------------------------------------
+# Endpunkt: Kommentar löschen
+# Löscht einen Kommentar, wenn der aktuell eingeloggte Nutzer
+# der Ersteller des Kommentars ist.
+# --------------------------------------------------
 @main.route('/delete_comment/<int:comment_id>', methods=['POST'])
 @login_required
 def delete_comment(comment_id):
@@ -128,7 +154,12 @@ def delete_comment(comment_id):
     flash("Kommentar wurde erfolgreich gelöscht.", "success")
     return redirect(request.referrer or url_for('main.index'))
 
-# Endpunkt zum Bearbeiten eines eigenen Beitrags
+# --------------------------------------------------
+# Endpunkt: Beitrag bearbeiten
+# Ermöglicht es dem Nutzer, einen seiner Beiträge zu bearbeiten.
+# Zunächst wird geprüft, ob der Nutzer der Besitzer ist.
+# Bei POST werden die neuen Werte übernommen und gespeichert.
+# --------------------------------------------------
 @main.route('/edit_post/<int:post_id>', methods=['GET', 'POST'])
 @login_required
 def edit_post(post_id):
