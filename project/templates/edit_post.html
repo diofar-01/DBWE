@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="columns is-centered">
+  <div class="column is-half">
+    <div class="box">
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          {% for msg in messages %}
+            <div class="notification is-info">
+              {{ msg }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+      
+      <h1 class="title has-text-centered">Beitrag bearbeiten</h1>
+      <form method="POST" action="">
+        <div class="field">
+          <label class="label">Buchtitel</label>
+          <div class="control">
+            <input class="input" type="text" name="title" value="{{ post.title }}" required>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Autor</label>
+          <div class="control">
+            <input class="input" type="text" name="author" value="{{ post.book_author }}">
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">ISBN</label>
+          <div class="control">
+            <input class="input" type="text" name="isbn" value="{{ post.isbn }}">
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Erstveröffentlichungsdatum</label>
+          <div class="control">
+            <input class="input" type="text" name="publishedDate" value="{{ post.published_date }}">
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Bild URL</label>
+          <div class="control">
+            <input class="input" type="text" name="image" value="{{ post.image }}">
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Deine Meinung</label>
+          <div class="control">
+            <textarea class="textarea" name="meinung" required>{{ post.meinung }}</textarea>
+          </div>
+        </div>
+        <div class="field">
+          <div class="control has-text-centered">
+            <button class="button is-primary is-fullwidth" type="submit">Aktualisieren</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

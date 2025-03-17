@@ -77,7 +77,11 @@ def profile():
 @login_required
 def add_post():
     if request.method == 'POST':
+        # Hier wird der Buchtitel ausgelesen.
         title = request.form.get('title')
+        # Debug-Ausgabe: Überprüfe, ob der Titel korrekt übergeben wird.
+        print("Gespeicherter Titel:", title)
+        
         meinung = request.form.get('meinung')
         book_author = request.form.get('author')
         isbn = request.form.get('isbn')
@@ -96,6 +100,7 @@ def add_post():
         db.session.add(new_post)
         db.session.commit()
         
+        flash("Beitrag wurde erfolgreich erstellt.", "success")
         return redirect(url_for('main.index'))
     return render_template('add_post.html')
 
@@ -122,3 +127,24 @@ def delete_comment(comment_id):
     db.session.commit()
     flash("Kommentar wurde erfolgreich gelöscht.", "success")
     return redirect(request.referrer or url_for('main.index'))
+
+# Endpunkt zum Bearbeiten eines eigenen Beitrags
+@main.route('/edit_post/<int:post_id>', methods=['GET', 'POST'])
+@login_required
+def edit_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    if post.user_id != current_user.id:
+        abort(403)  # Zugriff verweigern, wenn nicht der Besitzer
+
+    if request.method == 'POST':
+        post.title = request.form.get('title')
+        post.meinung = request.form.get('meinung')
+        post.book_author = request.form.get('author')
+        post.isbn = request.form.get('isbn')
+        post.published_date = request.form.get('publishedDate')
+        post.image = request.form.get('image')
+        db.session.commit()
+        flash("Beitrag wurde erfolgreich aktualisiert.", "success")
+        return redirect(url_for('main.profile'))
+        
+    return render_template('edit_post.html', post=post)

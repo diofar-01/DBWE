@@ -18,7 +18,7 @@
     {% else %}
       {% for post in posts %}
         <div class="box mb-4">
-          <!-- Media-Objekt: Bild links, Buchinfos rechts -->
+          <!-- Media-Objekt: Buchcover links, Buchinfos & Meinung rechts -->
           <article class="media">
             <figure class="media-left">
               {% if post.image %}
@@ -31,22 +31,21 @@
             </figure>
             <div class="media-content">
               <div class="content">
-                <p class="title is-5">{{ post.title }}</p>
-                <p class="subtitle is-6">Autor: {{ post.book_author or "unbekannt" }}</p>
-                <p class="is-size-7 has-text-grey">
+                <p class="title is-5" style="color: black;">{{ post.title or "Kein Titel gefunden" }}</p>
+                <p class="subtitle is-6" style="color: black;">Autor: {{ post.book_author or "unbekannt" }}</p>
+                <p class="is-size-7 has-text-grey" style="color: black;">
                   Erstveröffentlicht: {{ post.published_date or "unbekannt" }}
                 </p>
-                <p>{{ post.meinung }}</p>
+                <p style="color: black;">{{ post.meinung }}</p>
               </div>
             </div>
           </article>
-
-          <!-- Optionale Kommentare (ohne Löschbutton, falls nicht gewünscht) -->
+          
           {% if post.comments and post.comments|length > 0 %}
             <hr>
-            <strong>Kommentare:</strong>
+            <strong style="color: black;">Kommentare:</strong>
             {% for c in post.comments %}
-              <p>
+              <p style="color: black;">
                 {{ c.text }}
                 <small class="is-size-7 has-text-grey">
                   - {{ c.comment_author.name }}
@@ -58,13 +57,23 @@
             {% endfor %}
           {% else %}
             <hr>
-            <p class="is-size-7 has-text-grey">Keine Kommentare vorhanden.</p>
+            <p class="is-size-7 has-text-grey" style="color: black;">Keine Kommentare vorhanden.</p>
           {% endif %}
-
-          <!-- Löschen-Button für den Beitrag -->
-          <form method="POST" action="{{ url_for('main.delete_post', post_id=post.id) }}" onsubmit="return confirm('Beitrag wirklich löschen?');">
-            <button class="button is-danger is-small" type="submit">Löschen</button>
-          </form>
+          
+          <div class="columns is-mobile">
+            <div class="column">
+              <!-- Bearbeiten-Button -->
+              <a href="{{ url_for('main.edit_post', post_id=post.id) }}" class="button is-info is-small">
+                Bearbeiten
+              </a>
+            </div>
+            <div class="column">
+              <!-- Löschen-Button für den Beitrag -->
+              <form method="POST" action="{{ url_for('main.delete_post', post_id=post.id) }}" onsubmit="return confirm('Beitrag wirklich löschen?');">
+                <button class="button is-danger is-small" type="submit">Löschen</button>
+              </form>
+            </div>
+          </div>
         </div>
       {% endfor %}
     {% endif %}

@@ -10,9 +10,9 @@
   <div class="column is-half">
     {% for post in posts %}
       <div class="box mb-4">
-        <!-- Media-Object: Bild links, Text rechts -->
+        <!-- Media-Object: Buchcover links, Buchinfos & Meinung rechts -->
         <article class="media">
-          <!-- Linke Seite: Buchcover -->
+          <!-- Buchcover -->
           <figure class="media-left">
             {% if post.image %}
               <p class="image is-128x128">
@@ -22,18 +22,19 @@
               <p class="is-italic is-size-7">Kein Bild verfügbar</p>
             {% endif %}
           </figure>
-          
-          <!-- Rechte Seite: Buchinfos, Meinung -->
+          <!-- Buchinfos und Meinung -->
           <div class="media-content">
             <div class="content">
-              <p class="title is-5" style="margin-bottom: 0;">{{ post.title }}</p>
-              <p class="subtitle is-6" style="margin-top: 0;">
+              <p class="title is-5" style="color: black; margin-bottom: 0;">
+                {{ post.title or "Kein Titel gefunden" }}
+              </p>
+              <p class="subtitle is-6" style="color: black; margin-top: 0;">
                 Autor: {{ post.book_author or "unbekannt" }}
               </p>
-              <p class="is-size-7 has-text-grey">
+              <p class="is-size-7 has-text-grey" style="color: black;">
                 Erstveröffentlicht: {{ post.published_date or "unbekannt" }}
               </p>
-              <p>{{ post.meinung }}</p>
+              <p style="color: black;">{{ post.meinung }}</p>
             </div>
           </div>
         </article>
@@ -43,9 +44,9 @@
           <hr>
           {% for c in post.comments %}
             <div class="comment is-flex is-justify-content-space-between is-align-items-center mb-2">
-              <p style="margin: 0;">
+              <p style="margin: 0; color: black;">
                 {{ c.text }}
-                <small class="is-size-7 has-text-grey">
+                <small class="is-size-7 has-text-grey" style="color: black;">
                   - {{ c.comment_author.name }}
                   {% if c.date_created %}
                     ({{ c.date_created.strftime('%d.%m.%Y') }})
@@ -63,14 +64,14 @@
           {% endfor %}
         {% else %}
           <hr>
-          <p class="is-size-7 has-text-grey">Keine Kommentare vorhanden.</p>
+          <p class="is-size-7 has-text-grey" style="color: black;">Keine Kommentare vorhanden.</p>
         {% endif %}
 
         <!-- Kommentar hinzufügen -->
         <form method="POST" action="{{ url_for('main.index') }}">
           <input type="hidden" name="post_id" value="{{ post.id }}">
           <div class="field">
-            <label class="label">Neuen Kommentar hinzufügen</label>
+            <label class="label" style="color: black;">Neuen Kommentar hinzufügen</label>
             <div class="control">
               <textarea class="textarea" name="comment_text" placeholder="Dein Kommentar" required></textarea>
             </div>
