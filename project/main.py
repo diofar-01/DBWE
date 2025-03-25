@@ -82,7 +82,7 @@ def index():
 @main.route('/profile')
 @login_required
 def profile():
-    posts = Post.query.filter_by(user_id=current_user.id).all()
+    posts = Post.query.filter_by(user_id=current_user.id).order_by(Post.date_created.desc()).all()
     return render_template('profile.html', name=current_user.name, posts=posts)
 
 # --------------------------------------------------
