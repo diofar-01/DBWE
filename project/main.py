@@ -72,9 +72,9 @@ def index():
             db.session.commit()
         return redirect(url_for('main.index'))
     
-    posts = Post.query.all()  # Alle Beiträge laden
+    # Beiträge nach Erstellungsdatum absteigend sortieren
+    posts = Post.query.order_by(Post.date_created.desc()).all()
     return render_template('index.html', posts=posts)
-
 # --------------------------------------------------
 # Endpunkt: Profilseite
 # Zeigt nur die Beiträge des aktuell eingeloggten Nutzers an.
